@@ -7,12 +7,22 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.find(:all, :order => params[:sort])
+    @all_ratings = Movie.available_ratings
+    @checked_ratings = @all_ratings
+
+    if params[:ratings] 
+      @checked_ratings = params[:ratings].keys
+    end
+    
+    @movies = Movie.find_all_by_rating(@checked_ratings, :order => params[:sort])
+    
     if params[:sort] == 'title'
       @title_style = 'hilite'
     elsif params[:sort] == 'release_date'
       @release_date_style = 'hilite'
     end
+    
+    
   end
 
   def new
