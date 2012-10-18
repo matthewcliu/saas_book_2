@@ -8,23 +8,35 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = Movie.available_ratings
-    @checked_ratings = @all_ratings
 
     if params[:ratings] 
       @checked_ratings = params[:ratings].keys
+      @selected_sort = params[:sort]
       session[:saved_checked_ratings] = @checked_ratings
-    elsif session[:saved_checked_ratings]
-      @checked_ratings = session[:saved_checked_ratings]
+      session[:saved_sort] = @selected_sort
+    elsif params[:flat_ratings]
+      @checked_ratings = params[:flat_ratings]
+      @selected_sort = params[:sort]
+      session[:saved_checked_ratings] = @checked_ratings
+      session[:saved_sort] = @selected_sort
+    elsif params[:sort]
+      @selected_sort = params[:sort]
+      session[:saved_sort] = @selected_sort
+    elsif session[:saved_checked_ratings] || session[:saved_sort]
+      #@checked_ratings = session[:saved_checked_ratings]
+      flash.keep
+      redirect_to movies_path(:flat_ratings => session[:saved_checked_ratings], :sort => session[:saved_sort])
     else
       @checked_ratings = @all_ratings
     end
     
-    if params[:sort]
-      @selected_sort = params[:sort]
-      session[:saved_sort] = @selected_sort
-    else
-      @selected_sort = session[:saved_sort]
-    end
+    #if params[:sort]
+      #@selected_sort = params[:sort]
+      #session[:saved_sort] = @selected_sort
+    #elsif session[:saved_sort]
+      #redirect_to movies_path(:flat_ratings => session[:saved_checked_ratings], :sort => params[:sort])
+      #@selected_sort = session[:saved_sort]
+    #end
     
     @movies = Movie.find_all_by_rating(@checked_ratings, :order => @selected_sort)
     
