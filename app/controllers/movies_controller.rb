@@ -12,16 +12,27 @@ class MoviesController < ApplicationController
 
     if params[:ratings] 
       @checked_ratings = params[:ratings].keys
+      session[:saved_checked_ratings] = @checked_ratings
+    elsif session[:saved_checked_ratings]
+      @checked_ratings = session[:saved_checked_ratings]
+    else
+      @checked_ratings = @all_ratings
     end
     
-    @movies = Movie.find_all_by_rating(@checked_ratings, :order => params[:sort])
+    if params[:sort]
+      @selected_sort = params[:sort]
+      session[:saved_sort] = @selected_sort
+    else
+      @selected_sort = session[:saved_sort]
+    end
     
-    if params[:sort] == 'title'
+    @movies = Movie.find_all_by_rating(@checked_ratings, :order => @selected_sort)
+    
+    if @selected_sort == 'title'
       @title_style = 'hilite'
-    elsif params[:sort] == 'release_date'
+    elsif @selected_sort == 'release_date'
       @release_date_style = 'hilite'
-    end
-    
+    end    
     
   end
 
